@@ -2,6 +2,8 @@
 
 A simple Python script which helps reduce the _pain_ of managing a company within the game Motor Town. This script will automatically repair your company vehicles without you needing it manage it yourself.
 
+![](./images/example.gif)
+
 ## Setup
 
 1. Install [uv](https://github.com/astral-sh/uv)

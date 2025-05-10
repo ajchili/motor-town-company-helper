@@ -3,12 +3,40 @@ import sys
 import time
 
 import pyautogui
+import configparser
 
+config = configparser.ConfigParser()
+config.read("config.ini")
+sleepTimer = 0.25
 
-PROMPT = os.getenv("PROMPT", default="False")
-COMPANY_SIZE = int(os.getenv("COMPANY_SIZE", default="7"))
-REPAIR_INTERVAL = int(os.getenv("REPAIR_INTERVAL", default="15"))
+# DEFAULT VALUES
+PROMPT = os.getenv("PROMPT", default=config.get('Settings', 'prompt'))
+COMPANY_SIZE = int(os.getenv("COMPANY_SIZE", default=config.get('Settings', 'companySize')))
+REPAIR_INTERVAL = int(os.getenv("REPAIR_INTERVAL", default=config.get('Settings', 'repairInterval')))
 
+# GameKeys from the Config
+openCompanyUI = config.get('gameKeys', 'companyUI')
+downKey = config.get('gameKeys', 'downArrow')
+upKey = config.get('gameKeys', 'upArrow')
+leftKey = config.get('gameKeys', 'leftArrow')
+rightKey = config.get('gameKeys', 'rightArrow')
+selectionKey = config.get('gameKeys', 'spaceBar')
+confimationKey = config.get('gameKeys', 'returnKey')
+escapeKey = config.get('gameKeys', 'escapeKey')
+mouseKeys = config.get('gameKeys', 'usingMouseButtonAsKeys')
+interactionButton1 = config.get('gameKeys', 'Interact1')
+interactionButton2 = config.get('gameKeys', 'Interact2')
+
+if mouseKeys:
+	if interactionButton1 == "LMB":
+		interactionButton1 = 'left'
+	else: 
+		interactionButton1 = 'right'
+
+	if interactionButton2 == "LMB":
+		interactionButton2 = 'left'
+	else:
+		interactionButton2 = 'right'
 
 class GameNotFoundError(Exception):
 	pass
@@ -25,24 +53,42 @@ def get_game_window() -> pyautogui.Window:
 
 def press_key(key: str) -> None:
 	pyautogui.keyDown(key)
+	time.sleep(sleepTimer)
 	pyautogui.keyUp(key)
+
+def mouseClick(key: str) -> None:
+	pyautogui.click(button='left')
+	time.sleep(sleepTimer)
 
 
 def repair_company_vehicles(company_size: int) -> None:
 	window = get_game_window()
 	if not window.isActive:
 		window.activate()
-	
-	press_key("o")
-	press_key("down")
-	press_key("down")
+		time.sleep(sleepTimer)
+		press_key(openCompanyUI)
+		time.sleep(sleepTimer)
+		press_key(downKey)
+		time.sleep(sleepTimer)
+		press_key(downKey)
+		time.sleep(sleepTimer)
 
-	for i in range(0, company_size):
-		press_key("space")
-		press_key("enter")
-		press_key("down")
+		for i in range(0, company_size):
+			time.sleep(sleepTimer)
+			press_key(selectionKey)
+			time.sleep(sleepTimer)
+			press_key(confimationKey)
+			time.sleep(sleepTimer)
+			press_key(downKey)
+			time.sleep(sleepTimer)
 
-	press_key("esc")
+		press_key(escapeKey)
+		time.sleep(sleepTimer)
+		# This is needed because the game pops up a window after repairing the vehicles
+		if not mouseKeys:
+			press_key(interactionButton1)
+		else:
+			mouseClick(interactionButton1)
 
 
 def prompt_for_repair() -> bool:
@@ -65,6 +111,7 @@ try:
 			should_repair = prompt_for_repair()
 
 		if should_repair:
+				print(f"Repairing { COMPANY_SIZE } Vehicles Now")
 				repair_company_vehicles(company_size=COMPANY_SIZE)
 
 		for i in range(0, REPAIR_INTERVAL):

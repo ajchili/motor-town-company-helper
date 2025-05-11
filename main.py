@@ -84,11 +84,7 @@ def repair_company_vehicles(company_size: int) -> None:
 
 		press_key(escapeKey)
 		time.sleep(sleepTimer)
-		# This is needed because the game pops up a window after repairing the vehicles
-		if not mouseKeys:
-			press_key(interactionButton1)
-		else:
-			mouseClick(interactionButton1)
+		
 
 
 def prompt_for_repair() -> bool:
